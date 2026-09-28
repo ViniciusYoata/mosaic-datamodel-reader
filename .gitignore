@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches and virtual environments
+.temp/
+.venv/
+env/
+venv/
+
+# Session and credentials files
+.mstr_session.json
+*.pid
+
+# OS generated files
+.DS_Store
+Thumbs.db
