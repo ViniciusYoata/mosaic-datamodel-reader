@@ -193,13 +193,13 @@ def fetch_full_model(base_url, token, cookies, project_id, model_id):
     model      = get(f"model/dataModels/{model_id}")
     tables     = get_list(f"model/dataModels/{model_id}/tables",      "tables")
     attributes = get_list(f"model/dataModels/{model_id}/attributes",  "attributes")
-    base_mets  = get_list(f"model/dataModels/{model_id}/baseMetrics", "baseMetrics")
+    fact_mets  = get_list(f"model/dataModels/{model_id}/factMetrics", "factMetrics")
     metrics    = get_list(f"model/dataModels/{model_id}/metrics",      "metrics")
     hierarchy  = get(f"model/dataModels/{model_id}/hierarchy")
 
     raw = {
         "model": model, "tables": tables, "attributes": attributes,
-        "baseMetrics": base_mets, "metrics": metrics, "hierarchy": hierarchy,
+        "factMetrics": fact_mets, "metrics": metrics, "hierarchy": hierarchy,
     }
 
     # Save to .temp/cache/<model_id>/
@@ -218,7 +218,7 @@ def fetch_full_model(base_url, token, cookies, project_id, model_id):
         json.dump(raw, f, indent=2, ensure_ascii=False)
 
     print(f"  Tables: {len(tables)} | Attributes: {len(attributes)} | "
-          f"Base Metrics: {len(base_mets)} | Derived Metrics: {len(metrics)}")
+          f"Fact Metrics: {len(fact_mets)} | Derived Metrics: {len(metrics)}")
     print(f"  Cache Directory: {cache_dir}")
     return raw, cache_dir
 

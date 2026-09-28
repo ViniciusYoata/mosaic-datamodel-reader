@@ -135,13 +135,35 @@ def publish_model(base_url, token, cookies, project_id, model_id, working_copy_d
     if metrics:
         def phase3_ops(h_cs):
             for metric in metrics:
-                metric_id = metric["information"]["objectId"]
-                url_met = f"{base_url}/api/model/dataModels/{model_id}/metrics/{metric_id}"
-                put_payload = {
-                    "information": metric["information"],
-                    "format": metric.get("format", {})
-                }
-                session.put(url_met, json=put_payload, headers=h_cs, verify=True, timeout=15)
+                metric_info = metric.get("information", {})
+                metric_id = metric_info.get("objectId")
+                if metric_id:
+                    # Existing metric update
+                    url_met = f"{base_url}/api/model/dataModels/{model_id}/metrics/{metric_id}"
+                    put_payload = {
+                        "information": metric_info,
+                        "format": metric.get("format", {})
+                    }
+                    r_put = session.put(url_met, json=put_payload, headers=h_cs, verify=True, timeout=15)
+                    if r_put.status_code in [200, 204]:
+                        print(f"  - Updated metric: {metric_info.get('name')}")
+                    else:
+                        print(f"  - Warning updating metric {metric_info.get('name')}: {r_put.status_code}")
+                else:
+                    # New metric creation
+                    url_create = f"{base_url}/api/model/dataModels/{model_id}/metrics"
+                    post_payload = {
+                        "information": metric_info,
+                        "expression": metric.get("expression", {}),
+                        "format": metric.get("format", {})
+                    }
+                    r_post = session.post(url_create, json=post_payload, headers=h_cs, verify=True, timeout=15)
+                    if r_post.status_code in [200, 201]:
+                        created_id = r_post.json().get("information", {}).get("objectId")
+                        metric_info["objectId"] = created_id
+                        print(f"  + Created metric: {metric_info.get('name')} (id: {created_id})")
+                    else:
+                        print(f"  - Warning creating metric {metric_info.get('name')}: {r_post.status_code} - {r_post.text[:120]}")
         runner.run_changeset("Phase 3: Metrics", phase3_ops)
 
     # ── PHASE 4: Hierarchy and 1:N Relationships ─────────────────────────────
